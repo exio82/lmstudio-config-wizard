@@ -82,6 +82,19 @@ def get_gpu_info():
             except Exception:
                 pass
 
+            # Fallback: Try nvidia-smi for NVIDIA GPUs
+            if gpu_memory == "Unknown":
+                try:
+                    nvidia_output = subprocess.check_output(
+                        ["nvidia-smi", "--query-gpu=memory.total", "--format=csv,nounits,noheader"],
+                        stderr=subprocess.DEVNULL
+                    ).decode().strip()
+                    if nvidia_output:
+                        gpu_memory = f"{nvidia_output} MB"
+                        gpu_name = "NVIDIA"
+                except FileNotFoundError:
+                    pass  # nvidia-smi not available
+
     except Exception:
         pass
 
